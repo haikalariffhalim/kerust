@@ -1,0 +1,15 @@
+[workspace]
+
+members = [
+  "crates/specs",
+  "crates/scrub",
+  "crates/pusher",
+  "crates/transcribe",
+  "crates/s3",
+  "crates/markdown",
+  "crates/optimizer",
+  "crates/cleaner",
+  "crates/pipeline",
+]
+
+workspace.resolver = "2"

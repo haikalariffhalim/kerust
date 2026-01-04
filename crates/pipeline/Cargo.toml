@@ -1,0 +1,15 @@
+[package]
+name = "pipeline"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+data_scraper = { path = "../scrub" }
+convex_function = { path = "../pusher" }
+s3_uploader = { path = "../s3" }
+file_optimizer = { path = "../optimizer" }
+markdown_generator = { path = "../markdown" }
+pipeline_cli = { path = "../pipeline" }
+specs = { path = "../specs" }

@@ -1,0 +1,9 @@
+[package]
+name = "markdown"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+specs = { path = "../specs" }
+tera = "1.17" # optional templating engine; can be omitted
+anyhow = "1.0"

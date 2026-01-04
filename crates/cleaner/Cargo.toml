@@ -1,0 +1,12 @@
+[package]
+name = "cleaner"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aws-config = "0.60.0"
+aws-sdk-s3 = "0.60.0"
+chrono = { version = "0.4", features = ["serde"] }
+anyhow = "1.0"
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

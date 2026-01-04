@@ -1,0 +1,47 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'  # nightly UTC
+
+jobs:
+  generate-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system deps (yt-dlp)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          pip install --user yt-dlp
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build
+        run: cargo build --release --workspace
+
+      - name: Run scrapers
+        run: |
+          ./target/release/phone-pipeline-cli scrape --input inputs/models_urls.json --out out/json
+
+      - name: Upload JSON to S3
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync out/json s3://$S3_BUCKET/phones/json --delete
+        env:
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+
+      - name: Call Next.js ingestion endpoint
+        env:
+          INGEST_URL: ${{ secrets.NEXT_INGEST_URL }}
+          INGEST_SECRET: ${{ secrets.NEXT_INGEST_SECRET }}
+        run: |
+          ./target/release/phone-pipeline-cli push-to-convex --endpoint "$INGEST_URL" --secret "$INGEST_SECRET" --dir out/json
