@@ -22,7 +22,8 @@ struct Args {
 async fn main() -> Result<()> {
     let args = Args::parse();
 
-    let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
+    let region_provider =
+        RegionProviderChain::default_provider().or_else("us-east-1");
     let config = aws_config::from_env().region(region_provider).load().await;
     let client = Client::new(&config);
 
@@ -55,12 +56,20 @@ async fn main() -> Result<()> {
                 // delete in batches up to 1000
                 let objects = to_delete
                     .into_iter()
-                    .map(|k| aws_sdk_s3::types::ObjectIdentifier::builder().key(k).build())
+                    .map(|k| {
+                        aws_sdk_s3::types::ObjectIdentifier::builder()
+                            .key(k)
+                            .build()
+                    })
                     .collect::<Vec<_>>();
                 client
                     .delete_objects()
                     .bucket(&args.bucket)
-                    .delete(aws_sdk_s3::model::Delete::builder().set_objects(Some(objects)).build())
+                    .delete(
+                        aws_sdk_s3::model::Delete::builder()
+                            .set_objects(Some(objects))
+                            .build(),
+                    )
                     .send()
                     .await
                     .context("delete_objects")?;
@@ -70,7 +79,8 @@ async fn main() -> Result<()> {
         if resp.next_continuation_token().is_none() {
             break;
         } else {
-            continuation_token = resp.next_continuation_token().map(|s| s.to_string());
+            continuation_token =
+                resp.next_continuation_token().map(|s| s.to_string());
         }
     }
 

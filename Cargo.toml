@@ -12,4 +12,4 @@ members = [
   "crates/pipeline",
 ]
 
-workspace.resolver = "2"
+workspace.resolver = "1"

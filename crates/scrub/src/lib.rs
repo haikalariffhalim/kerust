@@ -18,8 +18,10 @@ pub async fn collect_urls_from_source(input: &str) -> Result<Vec<String>> {
         if std::env::var("SCRUB_ENDPOINT").is_ok() {
             let endpoint = std::env::var("SCRUB_ENDPOINT").unwrap();
             let client = reqwest::Client::new();
-            let resp = client.get(&endpoint).send().await?.error_for_status()?;
-            let urls: Vec<String> = resp.json().await.context("parsing urls from endpoint")?;
+            let resp =
+                client.get(&endpoint).send().await?.error_for_status()?;
+            let urls: Vec<String> =
+                resp.json().await.context("parsing urls from endpoint")?;
             Ok(urls)
         } else if input.ends_with(".json") {
             // maybe a local mapping file
@@ -41,7 +43,11 @@ pub async fn collect_urls_from_source(input: &str) -> Result<Vec<String>> {
 }
 
 /// Top-level fetch that picks a site-specific parser if domain matches; otherwise falls back to generic parser.
-pub async fn fetch_and_save_json(client: &Client, url: &str, out_dir: &Path) -> Result<()> {
+pub async fn fetch_and_save_json(
+    client: &Client,
+    url: &str,
+    out_dir: &Path,
+) -> Result<()> {
     // dispatch based on host
     if let Ok(u) = reqwest::Url::from_str(url) {
         if let Some(host) = u.host_str() {
@@ -58,7 +64,8 @@ pub async fn fetch_and_save_json(client: &Client, url: &str, out_dir: &Path) -> 
             };
 
             // write out
-            fs::create_dir_all(out_dir).with_context(|| format!("create out dir {:?}", out_dir))?;
+            fs::create_dir_all(out_dir)
+                .with_context(|| format!("create out dir {:?}", out_dir))?;
             let slug = slugify(&specs.brand, &specs.model);
             let out_path = out_dir.join(format!("{}.json", slug));
             let s = serde_json::to_string_pretty(&specs)?;
@@ -94,7 +101,9 @@ async fn generic_parse(url: &str, client: &Client) -> Result<Spec> {
             let td_sel = Selector::parse("td").unwrap();
             let mut key = None;
             if let Some(th) = tr.select(&th_sel).next() {
-                key = Some(th.text().collect::<Vec<_>>().join(" ").trim().to_string());
+                key = Some(
+                    th.text().collect::<Vec<_>>().join(" ").trim().to_string(),
+                );
             } else if let Some(first_td) = tr.select(&td_sel).next() {
                 let t = first_td
                     .text()
@@ -131,10 +140,17 @@ async fn generic_parse(url: &str, client: &Client) -> Result<Spec> {
             let dts: Vec<_> = doc.select(&dt_sel).collect();
             let dds: Vec<_> = doc.select(&dd_sel).collect();
             for (i, dt) in dts.iter().enumerate() {
-                let k = dt.text().collect::<Vec<_>>().join(" ").trim().to_string();
+                let k =
+                    dt.text().collect::<Vec<_>>().join(" ").trim().to_string();
                 let v = dds
                     .get(i)
-                    .map(|dd| dd.text().collect::<Vec<_>>().join(" ").trim().to_string())
+                    .map(|dd| {
+                        dd.text()
+                            .collect::<Vec<_>>()
+                            .join(" ")
+                            .trim()
+                            .to_string()
+                    })
                     .unwrap_or_default();
                 if !k.is_empty() && !v.is_empty() {
                     kv.insert(k, v);

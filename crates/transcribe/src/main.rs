@@ -1,10 +1,10 @@
 use anyhow::{Context, Result};
 use clap::Parser;
-use std::path::{PathBuf};
-use tokio::process::Command;
-use std::fs;
-use serde_json::Value;
 use reqwest::Client;
+use serde_json::Value;
+use std::fs;
+use std::path::PathBuf;
+use tokio::process::Command;
 use tokio::time::{sleep, Duration};
 
 /// Transcription with provider selection (AssemblyAI default). Supports chunking via ffmpeg.
@@ -65,23 +65,34 @@ async fn main() -> Result<()> {
 
     let audio = audio_path.expect("audio path set");
     // Step 2: chunk audio with ffmpeg if duration > chunk_seconds
-    let chunks = chunk_audio_if_needed(&audio, args.chunk_seconds).context("chunking audio")?;
+    let chunks = chunk_audio_if_needed(&audio, args.chunk_seconds)
+        .context("chunking audio")?;
 
     // Step 3: call provider (assemblyai default)
-    let provider = std::env::var("TRANSCRIBE_PROVIDER").unwrap_or_else(|_| "assemblyai".to_string());
+    let provider = std::env::var("TRANSCRIBE_PROVIDER")
+        .unwrap_or_else(|_| "assemblyai".to_string());
     let client = Client::new();
     let mut stitched_text = String::new();
     let mut stitched_segments = vec![];
 
     if provider.to_lowercase() == "assemblyai" {
-        let api_key = std::env::var("ASSEMBLYAI_API_KEY").context("ASSEMBLYAI_API_KEY is required for assemblyai")?;
+        let api_key = std::env::var("ASSEMBLYAI_API_KEY")
+            .context("ASSEMBLYAI_API_KEY is required for assemblyai")?;
         for (idx, chunk_path) in chunks.iter().enumerate() {
-            let upload_url = upload_to_assemblyai(&client, &api_key, chunk_path).await?;
-            let transcript = create_assemblyai_transcript(&client, &api_key, &upload_url).await?;
+            let upload_url =
+                upload_to_assemblyai(&client, &api_key, chunk_path).await?;
+            let transcript =
+                create_assemblyai_transcript(&client, &api_key, &upload_url)
+                    .await?;
             // transcript contains text and segments if available
-            stitched_text.push_str(&format!("\n\n{}", transcript["text"].as_str().unwrap_or("")));
+            stitched_text.push_str(&format!(
+                "\n\n{}",
+                transcript["text"].as_str().unwrap_or("")
+            ));
             // gather segments with offset adjusted by chunk offset
-            if let Some(segments) = transcript.get("segments").and_then(|s| s.as_array()) {
+            if let Some(segments) =
+                transcript.get("segments").and_then(|s| s.as_array())
+            {
                 // each segment has start/end/send text
                 for seg in segments {
                     stitched_segments.push(seg.clone());
@@ -93,7 +104,8 @@ async fn main() -> Result<()> {
         }
     } else {
         // fallback to OpenAI (whisper) - single upload per whole file (no segments)
-        let api_key = std::env::var("OPENAI_API_KEY").context("OPENAI_API_KEY required for openai")?;
+        let api_key = std::env::var("OPENAI_API_KEY")
+            .context("OPENAI_API_KEY required for openai")?;
         // If multiple chunks, upload and transcribe each similarly (skipping for brevity)
         for chunk in &chunks {
             let resp_text = openai_transcribe(&client, &api_key, chunk).await?;
@@ -104,9 +116,18 @@ async fn main() -> Result<()> {
     // Step 4: write stitched transcript JSON
     let out_json = PathBuf::from(&args.out).join("transcript.json");
     let mut obj = serde_json::Map::new();
-    obj.insert("text".to_string(), serde_json::Value::String(stitched_text.clone()));
-    obj.insert("segments".to_string(), serde_json::Value::Array(stitched_segments.clone()));
-    fs::write(&out_json, serde_json::to_string_pretty(&serde_json::Value::Object(obj))?)?;
+    obj.insert(
+        "text".to_string(),
+        serde_json::Value::String(stitched_text.clone()),
+    );
+    obj.insert(
+        "segments".to_string(),
+        serde_json::Value::Array(stitched_segments.clone()),
+    );
+    fs::write(
+        &out_json,
+        serde_json::to_string_pretty(&serde_json::Value::Object(obj))?,
+    )?;
 
     // Step 5: extract candidate quotes (simple heuristics: pick top N sentence-like chunks)
     let quotes = extract_candidate_quotes(&stitched_text, args.top_quotes);
@@ -119,7 +140,10 @@ async fn main() -> Result<()> {
 
 /// Splits audio into chunks using ffmpeg if necessary.
 /// Returns Vec<PathBuf> of chunk files (if no split, single element).
-fn chunk_audio_if_needed(audio: &PathBuf, chunk_seconds: u32) -> Result<Vec<PathBuf>> {
+fn chunk_audio_if_needed(
+    audio: &PathBuf,
+    chunk_seconds: u32,
+) -> Result<Vec<PathBuf>> {
     // get duration via ffprobe (if available); otherwise assume no chunking
     let ffprobe_out = std::process::Command::new("ffprobe")
         .arg("-v")
@@ -141,10 +165,25 @@ fn chunk_audio_if_needed(audio: &PathBuf, chunk_seconds: u32) -> Result<Vec<Path
                     let mut start = 0;
                     let mut idx = 0;
                     while (start as f32) < sec {
-                        let out_path = audio.with_file_name(format!("chunk-{}-{}.m4a", audio.file_stem().unwrap().to_string_lossy(), idx));
+                        let out_path = audio.with_file_name(format!(
+                            "chunk-{}-{}.m4a",
+                            audio.file_stem().unwrap().to_string_lossy(),
+                            idx
+                        ));
                         let end = (start + chunk_seconds) as f32;
                         let status = std::process::Command::new("ffmpeg")
-                            .args(&["-y", "-i", audio.to_str().unwrap(), "-ss", &format!("{}", start), "-t", &format!("{}", chunk_seconds), "-c", "copy", out_path.to_str().unwrap()])
+                            .args(&[
+                                "-y",
+                                "-i",
+                                audio.to_str().unwrap(),
+                                "-ss",
+                                &format!("{}", start),
+                                "-t",
+                                &format!("{}", chunk_seconds),
+                                "-c",
+                                "copy",
+                                out_path.to_str().unwrap(),
+                            ])
                             .status()?;
                         if !status.success() {
                             anyhow::bail!("ffmpeg chunk failed");
@@ -163,21 +202,33 @@ fn chunk_audio_if_needed(audio: &PathBuf, chunk_seconds: u32) -> Result<Vec<Path
 }
 
 /// Upload a chunk to AssemblyAI and return the upload_url
-async fn upload_to_assemblyai(client: &Client, key: &str, path: &PathBuf) -> Result<String> {
+async fn upload_to_assemblyai(
+    client: &Client,
+    key: &str,
+    path: &PathBuf,
+) -> Result<String> {
     let url = "https://api.assemblyai.com/v2/upload";
     let bytes = tokio::fs::read(path).await?;
-    let resp = client.post(url)
+    let resp = client
+        .post(url)
         .header("authorization", key)
         .body(bytes)
         .send()
         .await?
         .error_for_status()?;
     let v: serde_json::Value = resp.json().await?;
-    Ok(v["upload_url"].as_str().context("upload_url missing")?.to_string())
+    Ok(v["upload_url"]
+        .as_str()
+        .context("upload_url missing")?
+        .to_string())
 }
 
 /// Create a transcript job and poll until completion. Returns transcript object.
-async fn create_assemblyai_transcript(client: &Client, key: &str, upload_url: &str) -> Result<serde_json::Value> {
+async fn create_assemblyai_transcript(
+    client: &Client,
+    key: &str,
+    upload_url: &str,
+) -> Result<serde_json::Value> {
     let create_url = "https://api.assemblyai.com/v2/transcript";
     let body = serde_json::json!({
         "audio_url": upload_url,
@@ -186,7 +237,8 @@ async fn create_assemblyai_transcript(client: &Client, key: &str, upload_url: &s
         "disfluencies": true,
         "auto_chapters": false
     });
-    let mut resp = client.post(create_url)
+    let mut resp = client
+        .post(create_url)
         .header("authorization", key)
         .json(&body)
         .send()
@@ -198,7 +250,12 @@ async fn create_assemblyai_transcript(client: &Client, key: &str, upload_url: &s
     let poll_url = format!("https://api.assemblyai.com/v2/transcript/{}", id);
     // poll
     loop {
-        let r = client.get(&poll_url).header("authorization", key).send().await?.error_for_status()?;
+        let r = client
+            .get(&poll_url)
+            .header("authorization", key)
+            .send()
+            .await?
+            .error_for_status()?;
         let j: serde_json::Value = r.json().await?;
         let status = j["status"].as_str().unwrap_or("");
         if status == "completed" {
@@ -212,18 +269,46 @@ async fn create_assemblyai_transcript(client: &Client, key: &str, upload_url: &s
 }
 
 /// Fallback OpenAI transcription (simple single upload)
-async fn openai_transcribe(client: &Client, key: &str, path: &PathBuf) -> Result<String> {
+async fn openai_transcribe(
+    client: &Client,
+    key: &str,
+    path: &PathBuf,
+) -> Result<String> {
     let bytes = tokio::fs::read(path).await?;
-    let form = reqwest::multipart::Form::new().part("file", reqwest::multipart::Part::bytes(bytes).file_name("audio.m4a")).text("model", "whisper-1");
-    let resp = client.post("https://api.openai.com/v1/audio/transcriptions").bearer_auth(key).multipart(form).send().await?.error_for_status()?.text().await?;
+    let form = reqwest::multipart::Form::new()
+        .part(
+            "file",
+            reqwest::multipart::Part::bytes(bytes).file_name("audio.m4a"),
+        )
+        .text("model", "whisper-1");
+    let resp = client
+        .post("https://api.openai.com/v1/audio/transcriptions")
+        .bearer_auth(key)
+        .multipart(form)
+        .send()
+        .await?
+        .error_for_status()?
+        .text()
+        .await?;
     Ok(resp)
 }
 
 /// Very simple quote extractor: split into sentences and pick top N sentences by length (as proxy for "notable")
-fn extract_candidate_quotes(text: &str, top_n: usize) -> Vec<serde_json::Value> {
-    let sentences: Vec<_> = text.split_terminator(|c| c=='.' || c=='!' || c=='?').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+fn extract_candidate_quotes(
+    text: &str,
+    top_n: usize,
+) -> Vec<serde_json::Value> {
+    let sentences: Vec<_> = text
+        .split_terminator(|c| c == '.' || c == '!' || c == '?')
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .collect();
     let mut scored: Vec<_> = sentences.iter().map(|s| (s.len(), s)).collect();
     scored.sort_by_key(|(len, _)| *len);
     scored.reverse();
-    scored.iter().take(top_n).map(|(_, s)| serde_json::json!({"quote": *s})).collect()
+    scored
+        .iter()
+        .take(top_n)
+        .map(|(_, s)| serde_json::json!({"quote": *s}))
+        .collect()
 }

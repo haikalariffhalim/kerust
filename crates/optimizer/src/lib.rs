@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
 use image::io::Reader as ImageReader;
-use image::{imageops::FilterType, DynamicImage, GenericImageView, ImageOutputFormat};
+use image::{
+    imageops::FilterType, DynamicImage, GenericImageView, ImageOutputFormat,
+};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -94,7 +96,8 @@ fn apply_style(
     // deterministic grain
     let mut rng = StdRng::seed_from_u64(42);
     for pixel in buf.pixels_mut() {
-        let jitter = ((rng.gen::<f32>() - 0.5) * 2.0 * grain_strength * 255.0) as i32;
+        let jitter =
+            ((rng.gen::<f32>() - 0.5) * 2.0 * grain_strength * 255.0) as i32;
         for i in 0..3 {
             let v = (pixel[i] as i32 + jitter).clamp(0, 255) as u8;
             pixel[i] = v;

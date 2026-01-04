@@ -14,12 +14,18 @@ use std::{fs, path::Path};
 /// - PIPELINE_SECRET: header value the endpoint expects
 /// - INGEST_URL: the endpoint URL (https://your-nextjs-site/api/ingest)
 
-pub async fn push_dir_to_ingest(endpoint: &str, secret: &str, dir: &Path) -> Result<()> {
+pub async fn push_dir_to_ingest(
+    endpoint: &str,
+    secret: &str,
+    dir: &Path,
+) -> Result<()> {
     let client = Client::new();
     for entry in std::fs::read_dir(dir).context("reading dir")? {
         let ent = entry?;
         let path = ent.path();
-        if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("json") {
+        if path.is_file()
+            && path.extension().and_then(|s| s.to_str()) == Some("json")
+        {
             let s = fs::read_to_string(&path)?;
             let resp = client
                 .post(endpoint)

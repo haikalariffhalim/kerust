@@ -46,7 +46,8 @@ pub async fn upload_to_s3(
             .send()
             .await
             .context("put object")?;
-        let url = format!("https://{}.s3.{}.amazonaws.com/{}", bucket, region, key);
+        let url =
+            format!("https://{}.s3.{}.amazonaws.com/{}", bucket, region, key);
         urls.push(url);
     }
 
