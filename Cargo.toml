@@ -1,15 +1,23 @@
 [workspace]
+resolver = "2"
 
 members = [
-  "crates/specs",
-  "crates/scrub",
-  "crates/pusher",
-  "crates/transcribe",
-  "crates/s3",
-  "crates/markdown",
-  "crates/optimizer",
-  "crates/cleaner",
-  "crates/pipeline",
+  "crates/specs/src",
+  "crates/scrub/*",
+  "crates/pusher/*",
+  "crates/transcribe/*",
+  "crates/s3/*",
+  "crates/markdown/*",
+  "crates/optimizer/*",
+  "crates/cleaner/*",
+  "crates/pipeline/*",
 ]
 
-workspace.resolver = "1"
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.91.0"
+authors = ["haikal ariff"]
+repository = "https://github.com/haikalariffhalim/kerust"
+license = "MIT"
+description = "A parser and compiler written in Rust. Currently, it has support for some of the language."
