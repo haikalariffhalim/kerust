@@ -1,2 +1,5 @@
-/node_modules
-.DS_Store
+
+/target
+Cargo.lock
+.DS_store
+.env
