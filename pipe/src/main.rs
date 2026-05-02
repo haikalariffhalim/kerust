@@ -1,8 +1,8 @@
-// ... keep existing imports
+
 use std::path::PathBuf;
 use specs;
 use s3;
-use optimizer;
+use comp;
 use pusher;
 use scrub;
 

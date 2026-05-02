@@ -1,19 +1,19 @@
 [workspace]
 resolver = "2"
-
 members = [
-  "crates/specs/src",
-  "crates/scrub/*",
-  "crates/pusher/*",
-  "crates/transcribe/*",
-  "crates/s3/*",
-  "crates/markdown/*",
-  "crates/optimizer/*",
-  "crates/cleaner/*",
-  "crates/pipeline/*",
+  "specs",
+  "scrub",
+  "pusher",
+  "transcribe",
+  "s3",
+  "markdown",
+  "optimizer",
+  "cleaner",
+  "pipeline",
 ]
 
 [workspace.package]
+name = kerust
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.91.0"

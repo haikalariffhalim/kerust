@@ -3,7 +3,7 @@ use reqwest::Client;
 use std::{fs, path::Path};
 
 /// Push JSON artifacts to a server-side ingestion endpoint that upserts into Convex.
-/// This avoids embedding Convex admin keys in the Rust CLI and centralizes security in Next.js.
+/// This avoids embedding Convex admin keys in the Rust CLI and centralizes security webapp.
 ///
 /// The ingestion endpoint should:
 /// - verify a shared secret (X-PIPELINE-SECRET)
@@ -12,7 +12,7 @@ use std::{fs, path::Path};
 ///
 /// env:
 /// - PIPELINE_SECRET: header value the endpoint expects
-/// - INGEST_URL: the endpoint URL (https://your-nextjs-site/api/ingest)
+/// - INGEST_URL: the endpoint URL (https://web-app/api/ingest)
 
 pub async fn push_dir_to_ingest(
     endpoint: &str,

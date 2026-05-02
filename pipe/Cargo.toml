@@ -1,5 +1,5 @@
 [package]
-name = "pipeline"
+name = "pipe"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,7 +9,7 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 scrub = { path = "../scrub" }
 pusher = { path = "../pusher" }
 s3 = { path = "../s3" }
-optimizer = { path = "../optimizer" }
-markdown = { path = "../markdown" }
+comp = { path = "../comp" }
+md = { path = "../md" }
 pipeline= { path = "../pipeline" }
 specs = { path = "../specs" }

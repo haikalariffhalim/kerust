@@ -23,7 +23,7 @@ async fn main() -> Result<()> {
     let args = Args::parse();
 
     let region_provider =
-        RegionProviderChain::default_provider().or_else("us-east-1");
+        RegionProviderChain::default_provider().or_else("ap-southeast-1");
     let config = aws_config::from_env().region(region_provider).load().await;
     let client = Client::new(&config);
 

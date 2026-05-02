@@ -1,3 +1,6 @@
+
+
+
 ``` rust
 rust-pipeline (Rust workspace)
 ===================================
@@ -52,11 +55,13 @@ rust-pipeline (Rust workspace)
 
   ``` sh
  
-  pipeline-cli scrape --input inputs/urls.json --out_dir out/json
+  pipe scrub --input url --output dist
 
-  pipeline-cli push-to-convex --dir out/json
+  pipe push-out --dir out/index.ts
+  
+  pipe push-bucket --status 
 
-  pipeline-cli transcribe --url "https://www.youtube.com/watch?v=...." --out out/transcripts
+  pipe push-transcribe --url "https://www.youtube.com/watch?v=...." --out out/transcripts
 
   ```
 

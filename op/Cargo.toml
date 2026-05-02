@@ -1,5 +1,6 @@
 [package]
-name = "cleaner"
+name = "op"
+description ="operation and modus operandi to handle existing object in hand"
 version = "0.1.0"
 edition = "2021"
 

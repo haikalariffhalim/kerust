@@ -1,0 +1,94 @@
+[ENDPOINT] 
+[GET] https://phone-specs-api.vercel.app/brands
+[GET] https://phonewise.onrender.com/api/brands
+
+brand available in malaysia
+
+[ENDPOINT] /brands/
+[GET] https://phone-specs-api.vercel.app/brands/
+
+[ENDPOINT] /brands/{brand_slug}/{id}
+[GET] https://phonewise.onrender.com/api/search?q=apple
+
+
+Search by Page 
+
+[ENDPOINT] /brands/{brand_slug}-{id}?page{no}
+
+[GET] https://phone-specs-api.vercel.app/brands/apple-phones-48?page=2
+
+Search Specific model
+
+
+[ENDPOINT] /{phone_slug}}
+[GET] https://phone-specs-api.vercel.app/apple_iphone_12_pro_max-10237
+
+
+Other Model to fetch     
+
+
+Oppo [GET] https://phone-specs-api.vercel.app/brands/oppo-phones-82
+Vivo [GET]https://phone-specs-api.vercel.app/brands/vivo-phones-98
+Realme [GET] https://phone-specs-api.vercel.app/brands/realme-phones-118
+OnePlus [GET] https://phone-specs-api.vercel.app/brands/oneplus-phones-95
+Xiaomi [GET] https://phone-specs-api.vercel.app/brands/xiaomi-phones-80
+Samsung[GET] https://phone-specs-api.vercel.app/brands/samsung-phones-9
+Razer Phone
+ROG Phone
+Google  [GET] https://phone-specs-api.vercel.app/brands/google-phones-107
+Lenovolenovo-phones-73
+Nokia  [GET] https://phone-specs-api.vercel.app/brands/nokia-phones-1
+Huawei [GET] https://phone-specs-api.vercel.app/brands/huawei-phones-58
+Honor [GET] https://phone-specs-api.vercel.app/brands/honor-phones-121
+Infinixinfinix [GET] https://phone-specs-api.vercel.app/brands/phones-119
+Sony  [GET] https://phone-specs-api.vercel.app/brands/sony-phones-7
+asus [GET] https://phone-specs-api.vercel.app/brands/phones-46
+htc [GET] https://phone-specs-api.vercel.app/brands/phones-45
+NothingPhone [GET] https://phone-specs-api.vercel.app/brands/nothing-phones-128
+
+
+[ENDPOINT] /brands/phone-model
+[GET] https://api-mobilespecs.azharimm.dev/apple_iphone_12_pro_max-10237
+
+[ENDPOINT] /search
+[GET] http://api-mobilespecs.azharimm.dev/search?query= iPhone 12 pro max
+
+[ENDPOINT] /latest
+[GET] https://api-mobilespecs.azharimm.dev/latest
+
+[ENDPOINT] /top-by-interest
+[GET] https://api-mobilespecs.azharimm.dev/top-by-interest
+
+[ENDPOINT] /top-by-fans
+[GET] https://api-mobilespecs.azharimm.dev/top-by-fans
+
+
+list_brands: {
+    endpoint: "/brands",
+    example: fullUrl + "brands",
+},
+list_phones: {
+    endpoint: "/brands/{brand_slug}",
+    example: fullUrl + "brands/apple-phones-48",
+},
+phone_specs: {
+    endpoint: "/{phone_slug}",
+    example: fullUrl + "apple_iphone_12_pro_max-10237",
+},
+search: {
+    endpoint: "/search",
+    example: fullUrl + "search?query=Iphone 12 pro max",
+},
+latest: {
+    endpoint: "/latest",
+    example: fullUrl + "latest",
+},
+top_by_interest: {
+    endpoint: "/top-by-interest",
+    example: fullUrl + "top-by-interest",
+},
+top_by_fans: {
+    endpoint: "/top-by-fans",
+    example: fullUrl + "top-by-fans",
+},
+

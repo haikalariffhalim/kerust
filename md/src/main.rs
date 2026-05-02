@@ -1,4 +1,3 @@
-// markdown/src/lib.rs
 use anyhow::Result;
 use specs::Spec;
 

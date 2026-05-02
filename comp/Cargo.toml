@@ -1,5 +1,6 @@
 [package]
-name = "optimizer"
+name = "comp"
+description: "An image compressor tool to resize and convert to appropriate format before upload to bucket"
 version = "0.1.0"
 edition = "2021"
 
